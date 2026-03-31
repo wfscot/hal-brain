@@ -12,7 +12,7 @@ set -euo pipefail
 #
 # What gets injected into settings.json:
 #   env.BRAIN_DIR        — absolute path to this repo
-#   permissions.allow    — brain-* script allows
+#   permissions.allow    — brain-* script allows (using $BRAIN_DIR paths)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE_DIR="${HOME}/.claude"
@@ -69,23 +69,10 @@ import json, os
 
 settings_path = '${SETTINGS_FILE}'
 brain_dir = '${SCRIPT_DIR}'
-bin_dir = '${BIN_DIR}'
-home = os.path.expanduser('~')
 scripts = ['brain-save', 'brain-status', 'brain-log', 'brain-publish', 'brain-observe']
-local_bin = os.path.join(home, '.local', 'bin')
 
-# Build the allow entries we need (absolute + tilde forms for both locations)
-brain_allows = []
-for script in scripts:
-    abs_path = os.path.join(bin_dir, script)
-    brain_allows.append(f'Bash({abs_path}:*)')
-    if abs_path.startswith(home + '/'):
-        tilde_path = '~/' + abs_path[len(home) + 1:]
-        brain_allows.append(f'Bash({tilde_path}:*)')
-    local_path = os.path.join(local_bin, script)
-    brain_allows.append(f'Bash({local_path}:*)')
-    brain_allows.append(f'Bash(~/.local/bin/{script}:*)')
-    brain_allows.append(f'Bash({script}:*)')
+# Allow entries use absolute paths (assistant resolves via \$BRAIN_DIR)
+brain_allows = [f'Bash({brain_dir}/bin/{s}:*)' for s in scripts]
 
 # Read existing settings (or start fresh)
 if os.path.exists(settings_path):
@@ -98,12 +85,10 @@ else:
 # Inject BRAIN_DIR env var
 settings.setdefault('env', {})['BRAIN_DIR'] = brain_dir
 
-# Add brain-* allows that aren't already present
+# Replace all brain-* allows (remove stale, add current)
 settings.setdefault('permissions', {}).setdefault('allow', [])
-existing = settings['permissions']['allow']
-for allow in brain_allows:
-    if allow not in existing:
-        existing.append(allow)
+existing = [a for a in settings['permissions']['allow'] if 'brain-' not in a]
+settings['permissions']['allow'] = existing + brain_allows
 
 # Write back (follows symlink, writes to actual file)
 real_path = os.path.realpath(settings_path) if os.path.exists(settings_path) else settings_path
@@ -113,26 +98,6 @@ with open(real_path, 'w') as f:
 " 2>&1
 
 echo "[ok] settings.json updated (BRAIN_DIR env + brain-* allows)"
-
-# --- Symlink brain-* scripts into ~/.local/bin/ if available and on PATH ---
-LOCAL_BIN="${HOME}/.local/bin"
-if [ -d "${LOCAL_BIN}" ] && echo "${PATH}" | tr ':' '\n' | grep -qx "${LOCAL_BIN}"; then
-  echo ""
-  for script in "${BIN_DIR}"/brain-*; do
-    name=$(basename "$script")
-    target="${LOCAL_BIN}/${name}"
-    if [ -L "$target" ] && [ "$(readlink "$target")" = "$script" ]; then
-      echo "[ok] ${name} (unchanged)"
-    else
-      ln -sf "$script" "$target"
-      echo "[ok] ${name} → ${LOCAL_BIN}/"
-    fi
-  done
-else
-  echo ""
-  echo "[warn] ~/.local/bin/ not found or not on PATH — brain-* scripts not linked."
-  echo "       You can run them directly: ${BIN_DIR}/brain-save \"message\""
-fi
 
 echo ""
 echo "=== install complete ==="
