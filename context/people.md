@@ -1,6 +1,14 @@
-# Team — iFundCities
+# People
 
-## Engineering (report to Scot)
+People who matter in Scot's life and work. Organized by domain but some span multiple.
+
+## Family
+
+- **Katy Hastings** — Wife
+- **Weston Hastings** — Son, 2 years old
+- **Daughter (name TBD)** — Due June 2026
+
+## IFC — Engineering (report to Scot)
 
 ### Dynamics Team
 - **Suyog** — Dynamics team lead, CRM development and coordination
@@ -15,10 +23,10 @@
 
 ### India Operations
 - ~52 employees focused on operational work (document processing, etc.)
-- Sushanth — loan processing, post-closing
-- Nikhil Gupta — QC, compliance
+- **Sushanth** — Loan processing, post-closing
+- **Nikhil Gupta** — QC, compliance
 
-## Key Business Stakeholders
+## IFC — Business Stakeholders
 
 - **Bryan Ziegenfuse** — CEO/President. Portal and data app stakeholder. Runs Level 10 meetings.
 - **Ryan** — Business stakeholder. Portal, data, AI tooling strategy.
@@ -33,9 +41,9 @@
 - **Cody Creason** — Draws team. Slow draw workflows.
 - **Erik Eichinger** — Business operations.
 
-## External Vendors
+## IFC — External Vendors
 
-- **Sitewire** — Inspection platform, API integration upcoming (~65% of inspections)
+- **Sitewire** (Justin) — Inspection platform, API integration upcoming (~65% of inspections)
 - **BSI** — Loan servicing system
 - **JourneyTEAM** — Microsoft licensing partner
 - **Toptal** — Staffing agency for Alex and Inno

@@ -23,10 +23,11 @@ Read all files in `~/workspaces/hal-brain/observations/*.md` (top-level only, no
 ### 3. Synthesize Into Context
 
 For each observation:
-- Determine which context file(s) it affects (principal.md, team.md, projects/*.md, self.md)
+- Determine which context file(s) it affects (principal.md, people.md, projects/*.md, self.md)
 - Read the current context file
 - Apply the observation — update facts, add new information, correct errors
 - When observations conflict, later timestamps win. Note the conflict in the context file as a comment if the resolution is non-obvious.
+- If an observation introduces a new domain or project that doesn't have a context file, create one.
 
 Be conservative: only change what the observation supports. Don't infer beyond what's stated.
 
@@ -37,25 +38,49 @@ Create the directory if needed. Do not delete or modify the observation files �
 
 ### 5. Regenerate Exports
 
-Read each context file and distill into the corresponding export:
+Distill internal context into exports for consuming agents. Exports are leaner than context — keep what other agents need to do good work, strip what's only relevant to me.
+
+**Rules** (always-on context for consumers):
 
 | Context Source | Export Target | Framing |
 |---|---|---|
-| `context/principal.md` | `exports/rulesync/rules/principal-context.md` | Second person — "You are working for..." |
-| `context/team.md` | `exports/rulesync/rules/team.md` | Second person — "You may encounter..." |
-| `context/projects/ifundcities.md` | `exports/rulesync/rules/ifc-context.md` | Factual, for consuming agents |
+| `context/principal.md` | `exports/rulesync/rules/principal-context.md` | Second person — "You are working for..." Includes domain index. |
 
-Exports are leaner than context — strip personal details, interaction preferences, and anything only relevant to me. Keep what other agents need to do good work.
+**Domain skills** (on-demand context for consumers):
 
-Preserve the YAML front matter (description, globs) in each export file.
+| Context Source | Export Target |
+|---|---|
+| `context/principal.md` (domains) + `context/people.md` (domain-relevant) + `context/projects/*.md` | `exports/rulesync/skills/domain-ifc-context/` |
+| `context/principal.md` (personal) + `context/people.md` (family) | `exports/rulesync/skills/domain-personal-context/` |
+
+For each domain skill:
+- `SKILL.md` — overview, relevant people, strategy, project list
+- `project-*.md` — one file per project with details
+
+People from `context/people.md` are distributed across domain exports based on relevance — IFC people go into domain-ifc-context, family goes into domain-personal-context. A person who spans domains appears in each relevant one.
+
+**Agents:**
+
+| Source | Export Target |
+|---|---|
+| `context/self.md` | `exports/rulesync/agents/hal-proxy.md` |
+
+Update the hal-proxy personality if `context/self.md` has changed. The proxy references rules and skills for knowledge, so only personality and voice need to be baked in.
+
+**New domains/projects:** If context now includes a domain or project that has no export, scaffold the export skill directory and files.
+
+Preserve YAML front matter (name, description, globs) in all export files.
 
 ### 6. Release Lock
 
 Remove `~/workspaces/hal-brain/.context-lock`.
 
-### 7. Report
+### 7. Commit and Report
+
+Run `brain-save "dream: processed N observations, updated X"`.
 
 Summarize what changed:
 - How many observations processed
 - Which context files updated
-- Which exports regenerated
+- Which exports created or updated
+- Any new domains or projects scaffolded
