@@ -1,28 +1,14 @@
 # hal-brain
 
-Hal's brain — the personal AI assistant workspace for Scot Hastings.
+A personal AI assistant's brain — identity, skills, knowledge, and memory in a git repo.
 
-## Structure
+## How It Works
 
-```
-hal-brain/
-├── install.sh                  # Symlinks claude/ into ~/.claude/
-├── claude/                     # Everything that gets symlinked into ~/.claude/
-│   ├── CLAUDE.md               # Identity + context routing (global)
-│   ├── rules/                  # Steering rules (global, every project)
-│   └── skills/                 # Hal's skills (global, every project)
-├── exports/rulesync/           # Published for OTHER agents via rulesync
-│   ├── rules/                  # Principal context, IFC context, team
-│   └── skills/                 # (future: shared skills)
-├── context/                    # Hal's durable knowledge (updated during dreaming)
-│   ├── self.md                 # Who Hal is
-│   ├── principal.md            # Who Hal works for
-│   ├── team.md                 # People Hal works with
-│   └── projects/               # Project knowledge
-├── observations/               # Append-only during work sessions
-│   └── processed/              # Processed observations (audit trail)
-└── rulesync.jsonc              # Config for exports (consumed by other workspaces)
-```
+The assistant's configuration (CLAUDE.md, rules, skills) lives in `claude/` and gets symlinked into `~/.claude/` by `install.sh`. This makes the assistant's identity, steering rules, and skills available globally across all Claude Code sessions regardless of working directory.
+
+Knowledge about the principal (the person the assistant works for) lives in `context/`. This is private to the assistant and updated only through the dream process.
+
+Other agents can consume a distilled, read-only subset of the assistant's knowledge via rulesync exports.
 
 ## Setup
 
@@ -30,25 +16,81 @@ hal-brain/
 ./install.sh
 ```
 
-This symlinks `claude/` into `~/.claude/` so Hal's identity, rules, and skills are available in every Claude Code session regardless of working directory.
+This:
+- Symlinks `claude/CLAUDE.md`, `claude/rules/`, `claude/skills/` into `~/.claude/`
+- Injects `BRAIN_DIR` env var and `brain-*` script permissions into `~/.claude/settings.json`
+- Creates `context/`, `observations/`, and `exports/` directories if missing
 
-## For other agents
+On first session after install, the assistant will run `/whoami` (to establish its identity) and `/interview` (to learn about the principal).
 
-Other workspaces can consume Hal's exported context via rulesync. Add to `rulesync.local.jsonc`:
+## Structure
+
+```
+hal-brain/
+├── install.sh                  # Wires claude/ into ~/.claude/
+├── claude/                     # Symlinked into ~/.claude/
+│   ├── CLAUDE.md               # Bootstrap — identity, write path rules
+│   ├── rules/                  # Steering rules (loaded every session)
+│   └── skills/                 # Skills (loaded on demand)
+├── context/                    # Durable knowledge (written only by /dream)
+│   ├── self.md                 # Who the assistant is
+│   ├── principal.md            # Who the assistant works for
+│   ├── people.md               # People in the principal's life and work
+│   └── projects/               # Project knowledge by domain
+├── observations/               # Append-only raw notes (via brain-observe)
+│   └── processed/              # Observations consumed by /dream
+├── exports/rulesync/           # Distilled knowledge for other agents
+│   ├── rules/                  # Always-on context (principal, etc.)
+│   ├── skills/                 # On-demand context (domains, projects)
+│   └── agents/                 # Optional personality (hal-proxy)
+├── bin/                        # brain-* scripts for repo operations
+└── rulesync.jsonc              # Config for rulesync export consumers
+```
+
+## Skills
+
+| Skill | Purpose |
+|-------|---------|
+| `/whoami` | Establish or update the assistant's identity |
+| `/interview` | Discover or refresh knowledge about the principal |
+| `/dream` | Process observations into context, regenerate exports |
+| `/consult` | Strategic advisory — help the principal focus on what matters |
+| `/algorithm` | Structured 7-phase execution with verifiable criteria |
+| `/council` | Multi-perspective debate |
+| `/first-principles` | Decompose, challenge assumptions, reconstruct |
+| `/red-team` | Adversarial stress-testing |
+
+## Brain Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `brain-observe <slug> <content>` | Record an immutable observation |
+| `brain-save <message>` | Stage all and commit |
+| `brain-status [args]` | Git status |
+| `brain-log [args]` | Git log |
+| `brain-publish` | Git push |
+
+## Write Path Discipline
+
+- **context/** and **exports/** — only modified by `/dream`. Never edited directly.
+- **observations/** — append-only via `brain-observe`. Never edited or deleted.
+- **claude/rules/**, **claude/skills/**, **bin/** — can be edited directly when asked.
+
+## For Other Agents
+
+Other workspaces consume exported knowledge via rulesync. Add to `rulesync.local.jsonc`:
 
 ```jsonc
 {
   "sources": [
-    { "source": "~/workspaces/hal-brain", "transport": "local", "path": "exports/rulesync/rules" },
-    { "source": "~/workspaces/hal-brain", "transport": "local", "path": "exports/rulesync/skills" }
+    { "source": "<path-to-hal-brain>", "transport": "local", "path": "exports/rulesync/rules" },
+    { "source": "<path-to-hal-brain>", "transport": "local", "path": "exports/rulesync/skills" },
+    { "source": "<path-to-hal-brain>", "transport": "local", "path": "exports/rulesync/agents" }
   ]
 }
 ```
 
-## Key concepts
-
-- **claude/** is the source of truth for `~/.claude/`. Nothing is mastered in `~/.claude/` — it's all symlinks.
-- **context/** is Hal's private knowledge, updated only during dreaming.
-- **observations/** is append-only during work. No contention, no corruption. Archive lives under `observations/processed/`.
-- **exports/** is distilled from context/ for other agents. Never hand-edited, never consumed by Hal.
-- **Dreaming** processes observations into context, moves them to processed, then regenerates exports.
+Exports provide:
+- **Rules** (always loaded): principal context with domain index
+- **Skills** (on demand): domain-specific context (IFC, personal, etc.) with nested project details
+- **Agents** (optional): hal-proxy — a read-only personality projection
