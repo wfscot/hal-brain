@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# brain-observe — Record an immutable observation.
+# Usage: brain-observe <slug> <content>
+#
+# Example:
+#   brain-observe "dynamics-since-2019" "Learned that IFC has been using Dynamics since 2019, not 2 years."
+#
+# Creates a timestamped file in observations/. Commit separately with brain-save.
+
+REPO_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+OBS_DIR="${REPO_DIR}/observations"
+
+if [ $# -lt 2 ]; then
+  echo "Usage: brain-observe <slug> <content>" >&2
+  exit 1
+fi
+
+SLUG="$1"
+CONTENT="$2"
+TIMESTAMP="$(date -u +%Y-%m-%dT%H%M)"
+FILENAME="${TIMESTAMP}-${SLUG}.md"
+FILEPATH="${OBS_DIR}/${FILENAME}"
+
+if [ -f "$FILEPATH" ]; then
+  echo "[error] ${FILENAME} already exists." >&2
+  exit 1
+fi
+
+echo "$CONTENT" > "$FILEPATH"
+echo "[ok] ${FILENAME}"

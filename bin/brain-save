@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# brain-save — Stage all and commit with a message.
+# Usage: brain-save "observe: learned something new"
+
+REPO_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+
+if [ $# -eq 0 ]; then
+  echo "Usage: brain-save <commit message>" >&2
+  exit 1
+fi
+
+cd "${REPO_DIR}"
+git add .
+
+if git diff --cached --quiet; then
+  echo "[skip] Nothing to commit."
+  exit 0
+fi
+
+git commit -m "$1"

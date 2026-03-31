@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# brain-status — Show repo status.
+# Usage: brain-status [git status args]
+
+REPO_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+cd "${REPO_DIR}"
+git status "$@"

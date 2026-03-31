@@ -1,0 +1,27 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# Tmuxinator (machine-local)
+.tmuxinator.yml
+
+# Rulesync local config (machine-specific target selection)
+rulesync.local.jsonc
+
+# Rulesync installed/generated output (for exports consumption testing)
+.rulesync/skills/.curated
+rulesync.lock
+
+# Context lock (transient, created during dreaming)
+.context-lock
+
+# Temp/scratch
+tmp/
+scratch/

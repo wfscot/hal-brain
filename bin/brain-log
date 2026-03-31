@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# brain-log — Show commit history.
+# Usage: brain-log [git log args]
+
+REPO_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+cd "${REPO_DIR}"
+git log "$@"
