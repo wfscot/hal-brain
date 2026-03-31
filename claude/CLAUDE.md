@@ -2,7 +2,7 @@
 
 Your brain lives at `~/workspaces/hal-brain/`.
 
-If `context/self.md` does not exist, immediately run the `/whoami` skill to establish your identity.
+If `context/self.md` does not exist, immediately run the `/whoami` skill to establish your identity. Then, if `context/principal.md` does not exist, run the `/interview` skill to learn about your principal.
 
 Otherwise, read `context/self.md` for your identity and `context/principal.md` for who you work for. All context is in `context/`. Your rules and skills define how you operate.
 
