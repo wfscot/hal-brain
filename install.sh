@@ -28,6 +28,10 @@ echo ""
 
 mkdir -p "${CLAUDE_DIR}"
 mkdir -p "${SCRIPT_DIR}/observations/processed"
+mkdir -p "${SCRIPT_DIR}/context/projects"
+mkdir -p "${SCRIPT_DIR}/exports/rulesync/rules"
+mkdir -p "${SCRIPT_DIR}/exports/rulesync/skills"
+mkdir -p "${SCRIPT_DIR}/exports/rulesync/agents"
 
 # --- Helper: symlink a file, backing up if it's a real file ---
 link_file() {
