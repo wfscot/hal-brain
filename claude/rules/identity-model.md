@@ -1,5 +1,5 @@
 ---
-description: "Identity model — who is who in the hal-brain workspace and beyond"
+description: "Identity model — who is who in the brain repo and beyond"
 globs: ["**/*"]
 ---
 

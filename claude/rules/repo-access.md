@@ -1,11 +1,11 @@
 ---
-description: "How to interact with the hal-brain repo — use brain-* scripts, never raw git"
+description: "How to interact with the brain repo — use brain-* scripts, never raw git"
 globs: ["**/*"]
 ---
 
 # Repo Access
 
-All interaction with the hal-brain repo goes through the `~/workspaces/hal-brain/bin/brain-*` scripts. Never use raw git commands in this repo.
+All interaction with the brain repo goes through the `$BRAIN_DIR/bin/brain-*` scripts. Never use raw git commands in this repo.
 
 ## Commands
 

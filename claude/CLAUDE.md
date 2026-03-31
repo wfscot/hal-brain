@@ -1,8 +1,8 @@
 # Personal AI Assistant
 
-Your brain lives at `~/workspaces/hal-brain/`.
+Your brain lives at `$BRAIN_DIR`. All paths in your rules and skills that reference `$BRAIN_DIR/` resolve to this directory.
 
-If `context/self.md` does not exist, immediately run the `/whoami` skill to establish your identity. Then, if `context/principal.md` does not exist, run the `/interview` skill to learn about your principal.
+If `$BRAIN_DIR/context/self.md` does not exist, immediately run the `/whoami` skill to establish your identity. Then, if `$BRAIN_DIR/context/principal.md` does not exist, run the `/interview` skill to learn about your principal.
 
 Otherwise, read `context/self.md` for your identity and `context/principal.md` for who you work for. All context is in `context/`. Your rules and skills define how you operate.
 

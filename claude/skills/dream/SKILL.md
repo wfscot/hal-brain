@@ -13,12 +13,12 @@ Only the dream process may modify context/ and move observations into processed/
 
 ### 1. Acquire Lock
 
-Check for `~/workspaces/hal-brain/.context-lock`. If it exists, another dream is in progress — abort.
+Check for `$BRAIN_DIR/.context-lock`. If it exists, another dream is in progress — abort.
 Create the lock file with current timestamp and PID.
 
 ### 2. Read Observations
 
-Read all files in `~/workspaces/hal-brain/observations/*.md` (top-level only, not processed/) sorted by timestamp. If no unprocessed observations exist, skip to step 5 (still regenerate exports in case context was manually updated).
+Read all files in `$BRAIN_DIR/observations/*.md` (top-level only, not processed/) sorted by timestamp. If no unprocessed observations exist, skip to step 5 (still regenerate exports in case context was manually updated).
 
 ### 3. Synthesize Into Context
 
@@ -33,7 +33,7 @@ Be conservative: only change what the observation supports. Don't infer beyond w
 
 ### 4. Move to Processed
 
-Move processed observations to `~/workspaces/hal-brain/observations/processed/YYYY-MM/`.
+Move processed observations to `$BRAIN_DIR/observations/processed/YYYY-MM/`.
 Create the directory if needed. Do not delete or modify the observation files — move only.
 
 ### 5. Regenerate Exports
@@ -73,7 +73,7 @@ Preserve YAML front matter (name, description, globs) in all export files.
 
 ### 6. Release Lock
 
-Remove `~/workspaces/hal-brain/.context-lock`.
+Remove `$BRAIN_DIR/.context-lock`.
 
 ### 7. Commit and Report
 

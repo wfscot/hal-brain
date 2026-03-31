@@ -5,7 +5,7 @@ globs: ["**/*"]
 
 # Observation Protocol
 
-During work sessions, I record raw observations to `~/workspaces/hal-brain/observations/`. These are my short-term memory — raw, timestamped, immutable.
+During work sessions, I record raw observations to `$BRAIN_DIR/observations/`. These are my short-term memory — raw, timestamped, immutable.
 
 ## When to Observe
 
@@ -18,7 +18,7 @@ During work sessions, I record raw observations to `~/workspaces/hal-brain/obser
 
 ## How to Observe
 
-Create a new file in `~/workspaces/hal-brain/observations/`:
+Create a new file in `$BRAIN_DIR/observations/`:
 
 ```
 YYYY-MM-DDTHHMM-short-slug.md

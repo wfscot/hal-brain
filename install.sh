@@ -10,12 +10,9 @@ set -euo pipefail
 #   ~/.claude/rules/     → hal-brain/claude/rules/
 #   ~/.claude/skills/    → hal-brain/claude/skills/
 #
-# What gets modified in place:
-#   ~/.claude/settings.json  — brain-* allows injected into existing file
-#
-# settings.json is NOT replaced. It may be a dotfiles symlink or a real file.
-# Either way, install.sh reads it, ensures brain-* allows are present, and
-# writes it back. Existing settings are preserved.
+# What gets injected into settings.json:
+#   env.BRAIN_DIR        — absolute path to this repo
+#   permissions.allow    — brain-* script allows
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE_DIR="${HOME}/.claude"
@@ -64,15 +61,14 @@ link_file "${SCRIPT_DIR}/claude/CLAUDE.md"  "${CLAUDE_DIR}/CLAUDE.md"  "CLAUDE.m
 link_dir  "${SCRIPT_DIR}/claude/rules"      "${CLAUDE_DIR}/rules"      "rules/     → claude/rules/"
 link_dir  "${SCRIPT_DIR}/claude/skills"     "${CLAUDE_DIR}/skills"     "skills/    → claude/skills/"
 
-# --- Inject brain-* allows into settings.json ---
-# Reads existing settings.json (which may be a real file or dotfiles symlink),
-# ensures brain-* script allows are present, writes back. Idempotent.
+# --- Inject BRAIN_DIR env and brain-* allows into settings.json ---
 SETTINGS_FILE="${CLAUDE_DIR}/settings.json"
 
 python3 -c "
 import json, os
 
 settings_path = '${SETTINGS_FILE}'
+brain_dir = '${SCRIPT_DIR}'
 bin_dir = '${BIN_DIR}'
 home = os.path.expanduser('~')
 scripts = ['brain-save', 'brain-status', 'brain-log', 'brain-publish', 'brain-observe']
@@ -81,33 +77,30 @@ local_bin = os.path.join(home, '.local', 'bin')
 # Build the allow entries we need (absolute + tilde forms for both locations)
 brain_allows = []
 for script in scripts:
-    # Full path in hal-brain/bin/
     abs_path = os.path.join(bin_dir, script)
     brain_allows.append(f'Bash({abs_path}:*)')
     if abs_path.startswith(home + '/'):
         tilde_path = '~/' + abs_path[len(home) + 1:]
         brain_allows.append(f'Bash({tilde_path}:*)')
-    # ~/.local/bin/ path (where symlinks may live)
     local_path = os.path.join(local_bin, script)
     brain_allows.append(f'Bash({local_path}:*)')
     brain_allows.append(f'Bash(~/.local/bin/{script}:*)')
-    # Bare command name (if on PATH, Claude may invoke without full path)
     brain_allows.append(f'Bash({script}:*)')
 
 # Read existing settings (or start fresh)
 if os.path.exists(settings_path):
-    # Resolve symlink to read the actual file
     real_path = os.path.realpath(settings_path)
     with open(real_path) as f:
         settings = json.load(f)
 else:
     settings = {}
 
-# Ensure permissions.allow exists
-settings.setdefault('permissions', {}).setdefault('allow', [])
-existing = settings['permissions']['allow']
+# Inject BRAIN_DIR env var
+settings.setdefault('env', {})['BRAIN_DIR'] = brain_dir
 
 # Add brain-* allows that aren't already present
+settings.setdefault('permissions', {}).setdefault('allow', [])
+existing = settings['permissions']['allow']
 for allow in brain_allows:
     if allow not in existing:
         existing.append(allow)
@@ -119,7 +112,7 @@ with open(real_path, 'w') as f:
     f.write('\n')
 " 2>&1
 
-echo "[ok] settings.json updated (brain-* allows injected)"
+echo "[ok] settings.json updated (BRAIN_DIR env + brain-* allows)"
 
 # --- Symlink brain-* scripts into ~/.local/bin/ if available and on PATH ---
 LOCAL_BIN="${HOME}/.local/bin"
@@ -148,4 +141,4 @@ echo "~/.claude/ now contains:"
 echo "  CLAUDE.md      → ${SCRIPT_DIR}/claude/CLAUDE.md  (symlink)"
 echo "  rules/         → ${SCRIPT_DIR}/claude/rules/     (symlink)"
 echo "  skills/        → ${SCRIPT_DIR}/claude/skills/    (symlink)"
-echo "  settings.json    (existing file, brain-* allows injected)"
+echo "  settings.json    (BRAIN_DIR=${SCRIPT_DIR}, brain-* allows)"

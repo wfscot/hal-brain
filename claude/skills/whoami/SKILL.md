@@ -11,7 +11,7 @@ Establish or refine who I am as an assistant. This is about MY identity, not the
 
 ### 1. Check for Existing Identity
 
-Read `~/workspaces/hal-brain/context/self.md`.
+Read `$BRAIN_DIR/context/self.md`.
 
 ### 2a. Cold Start (no self.md or empty)
 

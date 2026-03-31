@@ -11,7 +11,7 @@ Interactive conversation with the principal to discover or update context. Produ
 
 ### 1. Read Existing Context
 
-Read everything in `~/workspaces/hal-brain/context/`:
+Read everything in `$BRAIN_DIR/context/`:
 - `self.md` — my own identity and principles
 - `principal.md` — who I work for
 - `people.md` — people in Scot's life and work

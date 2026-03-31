@@ -11,7 +11,7 @@ Help the principal zero in on what matters most by synthesizing accumulated know
 
 ### 1. Load Context
 
-Read all context files in `~/workspaces/hal-brain/context/` to ground myself in the full picture.
+Read all context files in `$BRAIN_DIR/context/` to ground myself in the full picture.
 
 If the principal specifies domains (e.g., "consult on IFC" or "consult on personal"), focus there. If no domain is specified, consider everything.
 
